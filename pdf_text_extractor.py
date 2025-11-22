@@ -2,12 +2,21 @@ import base64
 import requests
 from pdf2image import convert_from_path
 import os
+import sys
+from dotenv import load_dotenv
+
+# Load env for local development
+load_dotenv()
 
 # -------------------------------
-# CONFIGURATION
+# CONFIGURATION (from environment)
 # -------------------------------
-APP_ID = "miniproject_9946de_04959c"
-APP_KEY = "e4a3944a3821bca6f5617082bbc026ee1199f991bf789773b312348cb56fd302"
+APP_ID = os.environ.get("MATHPIX_APP_ID")
+APP_KEY = os.environ.get("MATHPIX_APP_KEY")
+
+if not APP_ID or not APP_KEY:
+    print("ERROR: MATHPIX_APP_ID and MATHPIX_APP_KEY must be set in environment or .env file")
+    sys.exit(1)
 
 # -------------------------------
 # UTILITY FUNCTIONS
@@ -59,7 +68,8 @@ def extract_text_from_image(image_path):
 
 def extract_text_from_pdf(pdf_path):
     """Extract text from all pages of a PDF."""
-    output_folder = "temp_pdf_pages"
+    # Use TEMP_DIR from environment if provided, otherwise default to 'temp_pdf_pages'
+    output_folder = os.environ.get("TEMP_DIR", "temp_pdf_pages")
     try:
         # Convert PDF to images
         image_paths = convert_pdf_to_images(pdf_path, output_folder)

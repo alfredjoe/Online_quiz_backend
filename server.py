@@ -7,8 +7,14 @@ import requests
 import tempfile
 import re
 import fitz
+import sys
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+
+# Load .env if present (for local development)
+load_dotenv()
+
 # Configure CORS. Use `FRONTEND_ORIGIN` env var in production, default to allow all for dev.
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "*")
 # Limit CORS to API routes and allow common headers/methods. `flask_cors` will
@@ -21,8 +27,13 @@ def home():
     return "OK", 200
 
 # Configuration
-APP_ID = "miniproject_9946de_04959c"
-APP_KEY = "e4a3944a3821bca6f5617082bbc026ee1199f991bf789773b312348cb56fd302"
+# Load MathPix credentials from environment (do NOT hardcode in source).
+APP_ID = os.environ.get("MATHPIX_APP_ID")
+APP_KEY = os.environ.get("MATHPIX_APP_KEY")
+
+if not APP_ID or not APP_KEY:
+    print("ERROR: MATHPIX_APP_ID and MATHPIX_APP_KEY must be set in environment or .env file")
+    sys.exit(1)
 
 # # Verify API credentials - DISABLED AT STARTUP!
 # def verify_api_credentials():
