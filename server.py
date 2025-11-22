@@ -15,6 +15,9 @@ CORS(app, resources={r"/*": {
     "methods": ["GET", "POST", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"]
 }})
+@app.route("/", methods=["GET"])
+def home():
+    return "OK", 200
 
 # Configuration
 APP_ID = "miniproject_9946de_04959c"
