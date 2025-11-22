@@ -9,12 +9,11 @@ import re
 import fitz
 
 app = Flask(__name__)
-# Configure CORS to allow all origins and methods
-CORS(app, resources={r"/*": {
-    "origins": ["https://online-quiz-gilt-eta.vercel.app/"],
-    "methods": ["GET", "POST", "OPTIONS"],
-    "allow_headers": ["Content-Type", "Authorization"]
-}})
+# Configure CORS. Use `FRONTEND_ORIGIN` env var in production, default to allow all for dev.
+FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "*")
+# Limit CORS to API routes and allow common headers/methods. `flask_cors` will
+# handle preflight (OPTIONS) requests automatically.
+CORS(app, resources={r"/api/*": {"origins": FRONTEND_ORIGIN}}, supports_credentials=True)
 
 # Health check route
 @app.route("/", methods=["GET"])
@@ -168,8 +167,14 @@ def format_math_question(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
     return f'\\({text}\\)'
 
-@app.route('/api/extract-text', methods=['POST'])
+@app.route('/api/extract-text', methods=['GET', 'POST', 'OPTIONS'])
 def extract_text():
+    # If user visits the endpoint in a browser (GET), return a friendly message
+    # instead of raising "Method Not Allowed". Actual uploads should use POST.
+    if request.method == 'GET':
+        return jsonify({
+            'message': 'This endpoint accepts POST requests with a PDF file in field `file`.'
+        }), 200
     if 'file' not in request.files:
         print("No file provided in request")
         return jsonify({'error': 'No file provided'}), 400
