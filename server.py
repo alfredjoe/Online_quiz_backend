@@ -48,7 +48,7 @@ def verify_api_credentials():
         return False
 
 # Verify credentials when server starts
-verify_api_credentials()
+# verify_api_credentials()
 
 def convert_pdf_to_images(pdf_path, output_dir):
     """Convert PDF pages to images."""
